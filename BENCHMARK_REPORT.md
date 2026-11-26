@@ -130,6 +130,15 @@ v1 vẫn trả 200 nhanh, nên mọi chỉ số hạ tầng (latency, error, sat
 - **Giám sát chất lượng khi chạy:** chạy eval định kỳ (canary/synthetic) trên golden dataset với production và xuất accuracy thành metric để có alert, ví dụ `agent_eval_accuracy < 0.8`.
 - **Tín hiệu gián tiếp:** feedback người dùng (thumbs down), tỉ lệ câu không retrieve được context, đếm `agent_version` trong metric để thấy version lạ đang chạy, và tokens/câu giảm đột ngột (v1 57.7 so với v2 108.8).
 
+**Vì sao lỗi 504 ở Nginx (thí nghiệm D) không hiện trên metric của agent?**
+
+Khi `docker pause` một instance, request mà Nginx đã gửi tới instance đó bị treo. Nginx chờ hết `proxy_read_timeout 10s` (trong `nginx/nginx.conf`) rồi tự trả **504 Gateway Timeout** cho client. Agent bị pause không chạy được dòng code nào, nên không bao giờ ghi request đó vào `http_requests_total` hay histogram latency. Các instance còn sống cũng không thấy request này. Vì vậy panel Error rate (tính từ metric của agent) vẫn xanh dù người dùng nhận lỗi: metric chỉ phản ánh những gì *chính service đó* nhìn thấy. Trong thí nghiệm này chỉ `AgentInstanceDown` báo được, và báo gián tiếp qua việc Prometheus không scrape được `/metrics`. Mình không ghi lại số lỗi 504 phía Locust trong lượt chạy D, nên phần trên là giải thích theo cấu hình Nginx chứ không kèm số đo.
+
+Cách bắt loại lỗi này trong production:
+- Đo ở **tầng load balancer**: xuất metric của Nginx (status code theo upstream, qua `nginx-prometheus-exporter` hoặc log access dạng JSON) và alert khi tỉ lệ 5xx ở Nginx tăng.
+- **Synthetic check / blackbox probe** từ bên ngoài gọi `/ask` định kỳ: đo đúng trải nghiệm người dùng, kể cả lỗi xảy ra trước khi tới agent.
+- Đặt **timeout ngắn hơn** và để `proxy_next_upstream` thử instance khác, kết hợp readiness probe để load balancer bỏ instance treo nhanh hơn.
+
 ### 4.3 Debug bằng trace
 
 Chọn trace chậm nhất (Jaeger, service `observable-agent`, Longest First):
