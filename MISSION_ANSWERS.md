@@ -127,7 +127,7 @@ Content-Type: application/json
 ## Part 3: Cloud Deployment
 
 ### Exercise 3.1/3.2: Public deployment (Part 6 agent trên Render)
-- **URL:** `<Điền URL Render sau khi deploy, vd: https://production-ai-agent.onrender.com>`
+- **URL:** https://production-ai-agent-hzfb.onrender.com
 - **Screenshots:** `screenshots/dashboard.png`, `screenshots/running.png`, `screenshots/test.png`
 
 **So sánh `railway.toml` và `render.yaml`:**
@@ -281,3 +281,6 @@ Total messages: 10
 | Part 5 (CP4) | Hỗ trợ chạy stack scale 3 instance & `test_stateless.py` (`05-scaling-reliability`) | Giải thích `/health` vs `/ready`, graceful shutdown, stateless + Redis, và chạy `docker compose -p k5-day14-scaling up -d --build --scale agent=3` | Đã chạy thực tế `test_stateless.py` qua Nginx `:8080`, thấy cả 3 instance (`b52c93`, `de74be`, `560be1`) cùng phục vụ và giữ đủ 10 messages trong Redis |
 | Part 6 (CP5) | Hỗ trợ hoàn thiện toàn bộ `TODO` trong `06-lab-complete/` | Viết `config.py`, `redis_client.py`, `auth.py`, `rate_limiter.py`, `cost_guard.py`, `main.py`, `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `.env.example`, `railway.toml`, `render.yaml` | Đã chạy đầy đủ `python check_production_ready.py` trong WSL2 Ubuntu với Docker & Redis và đạt `PASS 12/12` (`43/43 checks passed`, image `160 MB`, `docker stop` 0.6s) |
 | Part 3 (CP6) | So sánh `railway.toml` vs `render.yaml` và tóm tắt Cloud Run CI/CD | Bảng so sánh 2 file config deploy và tóm tắt 4 bước CI/CD từ `cloudbuild.yaml` & `service.yaml` | Đã đối chiếu trực tiếp nội dung `06-lab-complete/railway.toml`, `render.yaml`, `cloudbuild.yaml`, `service.yaml` |
+| Part 3 (CP6) — deploy | Chuẩn bị `render.yaml` để deploy agent Part 6 lên Render | Thêm Key Value `agent-redis` và nối `REDIS_URL` bằng `fromService`; hướng dẫn tạo Blueprint với path `06-lab-complete/render.yaml` | Tự tạo Blueprint, tự đặt `AGENT_API_KEY` trên Dashboard; tự chạy 4 lệnh kiểm tra (200/200/401/200) và chụp ảnh; chạy lại `check_production_ready.py` trong WSL vẫn `PASS 12/12` |
+| Part 7 (CP7) | Hỗ trợ chạy benchmark local (Exercise 7.1–7.3) | Chạy `load_test.py` 4 mức concurrency và 3 mức `MOCK_SLOW_RATE`, chạy eval v1/v2; thêm 2 entry (JWT, Kubernetes HPA) vào `KNOWLEDGE_BASE`; viết mục 1–3 của `BENCHMARK_REPORT.md` | Đối chiếu số trong báo cáo với file JSON trong `reports/`; eval cuối 23/23, `Quality gate ✅ PASS`, 0 regression |
+| Part 7 (CP8) | Hỗ trợ dựng observability stack (Exercise 7.4–7.7) | Sửa `production/Dockerfile` (thêm `PYTHONUSERBASE`); chạy Locust scale 1/3 với `--no-deps`; tìm trace chậm/lỗi trong Jaeger; chạy thí nghiệm alert A–E; viết mục 4–6 của báo cáo | Kiểm tra số container đúng 1 và 3 khi đo; số trong báo cáo khớp CSV trong `benchmark-results/`; xem lại 4 ảnh trong `screenshots/` |

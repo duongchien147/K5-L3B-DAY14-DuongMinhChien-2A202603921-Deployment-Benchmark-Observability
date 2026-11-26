@@ -1,8 +1,8 @@
 # Deployment Information
 
 ## Public URL
-<!-- Điền URL sau khi deploy, ví dụ: https://production-ai-agent.onrender.com -->
-https://REPLACE_WITH_YOUR_RENDER_URL
+
+https://production-ai-agent-hzfb.onrender.com
 
 ## Platform
 Render (Blueprint via `render.yaml`)
@@ -10,7 +10,7 @@ Render (Blueprint via `render.yaml`)
 ## Test Commands
 
 ```bash
-BASE="https://REPLACE_WITH_YOUR_RENDER_URL"
+BASE="https://production-ai-agent-hzfb.onrender.com"
 AGENT_API_KEY="REPLACE_WITH_YOUR_KEY"
 
 # 1. Health check → 200
@@ -33,8 +33,8 @@ curl -sS -o /dev/null -w '%{http_code}\n' -X POST "$BASE/ask" \
 ## Environment Variables Set on Render
 - `PORT` — do Render inject tự động
 - `ENVIRONMENT` = `production`
-- `REDIS_URL` — URL Redis service trên Render (set qua Dashboard, `sync: false`)
-- `AGENT_API_KEY` — secret key (set qua Dashboard, `sync: false`)
+- `REDIS_URL` — tự nối từ Key Value `agent-redis` (`fromService` → `connectionString` trong `render.yaml`)
+- `AGENT_API_KEY` — secret, nhập trên Dashboard lúc tạo Blueprint (`sync: false`), không có trong code
 - `RATE_LIMIT_PER_MINUTE` = `10`
 - `DAILY_BUDGET_USD` = `1.0`
 
