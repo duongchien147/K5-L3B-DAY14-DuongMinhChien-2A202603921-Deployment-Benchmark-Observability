@@ -1,16 +1,29 @@
 services:
+  # Agent Part 6 — build từ Dockerfile multi-stage trong 06-lab-complete/
   - type: web
     name: production-ai-agent
     runtime: docker
+    plan: free
+    rootDir: 06-lab-complete
     healthCheckPath: /health
     envVars:
       - key: AGENT_API_KEY
-        sync: false
+        sync: false                # nhập trên Dashboard khi tạo Blueprint, không ghi vào code
       - key: REDIS_URL
-        sync: false
+        fromService:               # tự lấy connection string của Redis bên dưới
+          type: keyvalue
+          name: agent-redis
+          property: connectionString
       - key: ENVIRONMENT
         value: production
       - key: RATE_LIMIT_PER_MINUTE
         value: "10"
       - key: DAILY_BUDGET_USD
         value: "1.0"
+
+  # Redis cho rate limit + cost guard (state dùng chung, agent stateless)
+  - type: keyvalue
+    name: agent-redis
+    plan: free
+    maxmemoryPolicy: noeviction
+    ipAllowList: []                # chỉ cho service nội bộ cùng tài khoản kết nối
